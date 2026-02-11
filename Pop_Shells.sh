@@ -97,6 +97,8 @@ if [[ "$answer" =~ ^[Yy]$ ]]; then
 	wget https://github.com/SpecterOps/bloodhound-cli/releases/latest/download/bloodhound-cli-linux-amd64.tar.gz
 	tar -xvzf bloodhound-cli-linux-amd64.tar.gz
 	rm bloodhound-cli-linux-amd64.tar.gz
+	usermod -aG docker $USER
+	newgrp docker
 	./bloodhound-cli install
 else
     echo "Skipping Bloodhound."
@@ -130,8 +132,6 @@ echo "-==--==--==--==--==--==--==-"
 echo "Post install instructions:"
 echo "-==--==--==--==--==--==--==-"
 echo "Metasploit installed. Launch with: msfconsole"
-usermod -aG docker $USER
-newgrp docker
 echo "Log out and back in NOW for docker group to apply (required for non-sudo docker use)."
 echo "BloodHound CE installed via Docker. Access: http://localhost:8080/ui/login"
 echo "Check terminal for admin password (or use bloodhound-cli status/logs)."
