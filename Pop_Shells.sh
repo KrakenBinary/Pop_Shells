@@ -8,14 +8,15 @@
 set -eu -o pipefail
 test $? -eq 0 || exit 1 "You need sudo privilege to run this script"
 
-echo Installing 1337 H4X0R 700L$. . .
-sleep 6
+echo -=mkdirPenTools=-
+cd ~
+mkdir -v PenTools
+cd PenTools
 
-# install wireshark
-echo -=WireShark=-
-apt-get install -y wireshark
+echo -=UpdatingApt=-
+apt-get update
 
-# loop to install "ez" packages
+
 echo -=AptTools=-
 while read -r p ; do apt-get install -y $p ; done < <(cat << "EOF"
 	dirb
@@ -39,32 +40,59 @@ while read -r p ; do apt-get install -y $p ; done < <(cat << "EOF"
 EOF
 )
 
-echo Creating new directory named PenTools for your applications and seclists. . .
-sleep 6
+echo -=WireShark=-
+apt-get install -y wireshark
 
-# create directory for your new tools
-mkdir -v PenTools
-cd PenTools
+echo -=SecLists=-
+echo "Do you want to install SecLists? (y/n)"
+read -r answer
+if [[ "$answer" =~ ^[Yy]$ ]]; then
+    git clone https://github.com/danielmiessler/SecLists.git
+else
+    echo "Skipping SecLists."
+fi
 
-# download common seclists
-git clone https://github.com/danielmiessler/SecLists.git
+echo -=BloodhoundCE=-
+echo "Do you want to install Bloodhound? (y/n)"
+read -r answer
+if [[ "$answer" =~ ^[Yy]$ ]]; then
+	# Install Docker + Compose if not already
+	apt-get install -y docker.io docker-compose
+	wget https://github.com/SpecterOps/bloodhound-cli/releases/latest/download/bloodhound-cli-linux-amd64.tar.gz
+	tar -xvzf bloodhound-cli-linux-amd64.tar.gz
+	rm bloodhound-cli-linux-amd64.tar.gz
+	# Run install (creates containers, generates admin password)
+	./bloodhound-cli install
+else
+    echo "Skipping Bloodhound."
+fi
 
-# install bloodhound
-echo -=Bloodhound=-
-npm install -g electron-packager
-git clone https://github.com/BloodHoundAD/Bloodhound
-cd Bloodhound
-npm install
-echo -=BuildLinux=-
-npm run build:linux
-
-# install hydra
 echo -=Hydra=-
-pip install hydra-core --upgrade
-apt-get install hydra -y
+echo "Do you want to install Hydra? (y/n)"
+read -r answer
+if [[ "$answer" =~ ^[Yy]$ ]]; then
+	apt-get install hydra -y
+else
+    echo "Skipping hydra."
+fi
 
-# install metasploit
 echo -=Metasploit=-
-curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall
-chmod 755 msfinstall
-./msfinstall
+echo "Do you want to install Metasploit? (y/n)"
+read -r answer
+if [[ "$answer" =~ ^[Yy]$ ]]; then
+	curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb -o msfinstall
+	chmod 755 msfinstall
+	./msfinstall
+	rm msfinstall
+	# Optional but recommended: initialize database
+	msfdb init 2>/dev/null || true
+else
+    echo "Skipping Metasploit."
+fi
+
+# ... after all installs ...
+echo "Metasploit installed. Launch with: msfconsole"
+usermod -aG docker $USER
+echo "Log out and back in NOW for docker group to apply (required for non-sudo docker use)."
+echo "BloodHound CE installed via Docker. Access: http://localhost:8080/ui/login"
+echo "Check terminal for admin password (or use bloodhound-cli status/logs)."
