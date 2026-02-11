@@ -12,7 +12,7 @@ echo "Cleanup previous installs? (recommended for clean run) (y/n)"
 read -r -p "" cleanup </dev/tty
 if [[ "$cleanup" =~ ^[Yy]$ ]]; then
     echo "Cleaning up..."
-    rm -rf ~/PenTools
+    rm -rf "$USER_HOME/PenTools"
     apt remove --purge docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y 2>/dev/null || true
     rm -rf /var/lib/docker
     rm -f /etc/apt/sources.list.d/docker.list
@@ -28,17 +28,20 @@ else
     echo "Skipping cleanup."
 fi
 
-echo -=mkdirPenTools=-
-cd ~
-mkdir -p PenTools
-cd PenTools
+echo "-=mkdirPenTools=-"
+# Use the sudo caller's home directory
+USER_HOME=$(getent passwd $SUDO_USER | cut -d: -f6)
+if [ -z "$USER_HOME" ]; then
+    USER_HOME=/home/$SUDO_USER
+fi
+mkdir -p "$USER_HOME/PenTools"
+cd "$USER_HOME/PenTools"
 
-echo -=UpdatingApt=-
+echo "-=UpdatingApt=-"
 apt-get update
 
-
-echo -=AptTools=-
-while read -r p ; do apt-get install -y $p ; done < <(cat << "EOF"
+echo "-=AptTools=-"
+while read -r p ; do apt-get install -y -qq $p ; done < <(cat << "EOF"
 	dirb
 	dnsrecon
 	gobuster
@@ -60,10 +63,10 @@ while read -r p ; do apt-get install -y $p ; done < <(cat << "EOF"
 EOF
 )
 
-echo -=WireShark=-
+echo "-=WireShark=-
 apt-get install -y wireshark
 
-echo -=SecLists=-
+echo -=SecLists=-"
 echo "Do you want to install SecLists? (y/n)"
 read -r -p "" answer </dev/tty
 if [[ "$answer" =~ ^[Yy]$ ]]; then
@@ -72,7 +75,7 @@ else
     echo "Skipping SecLists."
 fi
 
-echo -=BloodhoundCE=-
+echo "-=BloodhoundCE=-"
 echo "Do you want to install Bloodhound? (y/n)"
 read -r -p "" answer </dev/tty
 if [[ "$answer" =~ ^[Yy]$ ]]; then
@@ -104,7 +107,7 @@ else
     echo "Skipping Bloodhound."
 fi
 
-echo -=Hydra=-
+echo "-=Hydra=-"
 echo "Do you want to install Hydra? (y/n)"
 read -r -p "" answer </dev/tty
 if [[ "$answer" =~ ^[Yy]$ ]]; then
@@ -113,7 +116,7 @@ else
     echo "Skipping hydra."
 fi
 
-echo -=Metasploit=-
+echo "-=Metasploit=-"
 echo "Do you want to install Metasploit? (y/n)"
 read -r -p "" answer </dev/tty
 if [[ "$answer" =~ ^[Yy]$ ]]; then
