@@ -45,7 +45,7 @@ apt-get install -y wireshark
 
 echo -=SecLists=-
 echo "Do you want to install SecLists? (y/n)"
-read -r answer
+read -r -p "" answer </dev/tty
 if [[ "$answer" =~ ^[Yy]$ ]]; then
     git clone https://github.com/danielmiessler/SecLists.git
 else
@@ -54,7 +54,7 @@ fi
 
 echo -=BloodhoundCE=-
 echo "Do you want to install Bloodhound? (y/n)"
-read -r answer
+read -r -p "" answer </dev/tty
 if [[ "$answer" =~ ^[Yy]$ ]]; then
 	# Install Docker + Compose if not already
 	apt-get install -y docker.io docker-compose
@@ -69,7 +69,7 @@ fi
 
 echo -=Hydra=-
 echo "Do you want to install Hydra? (y/n)"
-read -r answer
+read -r -p "" answer </dev/tty
 if [[ "$answer" =~ ^[Yy]$ ]]; then
 	apt-get install hydra -y
 else
@@ -78,7 +78,7 @@ fi
 
 echo -=Metasploit=-
 echo "Do you want to install Metasploit? (y/n)"
-read -r answer
+read -r -p "" answer </dev/tty
 if [[ "$answer" =~ ^[Yy]$ ]]; then
 	curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb -o msfinstall
 	chmod 755 msfinstall
