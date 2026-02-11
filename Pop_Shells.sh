@@ -8,6 +8,26 @@
 set -eu -o pipefail
 test $? -eq 0 || exit 1 "You need sudo privilege to run this script"
 
+echo "Cleanup previous installs? (recommended for clean run) (y/n)"
+read -r -p "" cleanup </dev/tty
+if [[ "$cleanup" =~ ^[Yy]$ ]]; then
+    echo "Cleaning up..."
+    rm -rf ~/PenTools
+    apt remove --purge docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y 2>/dev/null || true
+    rm -rf /var/lib/docker
+    rm -f /etc/apt/sources.list.d/docker.list
+    apt autoremove -y
+    apt autoclean
+    systemctl daemon-reload
+	# echo "Cleanup done. Reboot recommended before continuing."
+    # read -r -p "Reboot now? (y/n): " reboot_now </dev/tty
+    # if [[ "$reboot_now" =~ ^[Yy]$ ]]; then
+    #     reboot
+    # fi
+else
+    echo "Skipping cleanup."
+fi
+
 echo -=mkdirPenTools=-
 cd ~
 mkdir -p PenTools
@@ -66,11 +86,17 @@ if [[ "$answer" =~ ^[Yy]$ ]]; then
 	echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu noble stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
 	apt-get update
 	apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-	# apt-get install -y docker.io docker-buildx-plugin docker-compose-plugin
+
+	# Start and enable Docker
+	systemctl start docker
+	systemctl enable docker
+
+	# Wait a few seconds for daemon to be ready
+	sleep 5
+
 	wget https://github.com/SpecterOps/bloodhound-cli/releases/latest/download/bloodhound-cli-linux-amd64.tar.gz
 	tar -xvzf bloodhound-cli-linux-amd64.tar.gz
 	rm bloodhound-cli-linux-amd64.tar.gz
-	# Run install (creates containers, generates admin password)
 	./bloodhound-cli install
 else
     echo "Skipping Bloodhound."
