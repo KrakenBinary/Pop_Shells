@@ -10,7 +10,7 @@ test $? -eq 0 || exit 1 "You need sudo privilege to run this script"
 
 echo -=mkdirPenTools=-
 cd ~
-mkdir -v PenTools
+mkdir -p PenTools
 cd PenTools
 
 echo -=UpdatingApt=-
