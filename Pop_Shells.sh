@@ -57,7 +57,7 @@ echo "Do you want to install Bloodhound? (y/n)"
 read -r -p "" answer </dev/tty
 if [[ "$answer" =~ ^[Yy]$ ]]; then
 	# Install Docker + Compose if not already
-	apt-get install -y docker.io docker-compose
+	apt-get install -y docker.io docker-buildx-plugin docker-compose-plugin
 	wget https://github.com/SpecterOps/bloodhound-cli/releases/latest/download/bloodhound-cli-linux-amd64.tar.gz
 	tar -xvzf bloodhound-cli-linux-amd64.tar.gz
 	rm bloodhound-cli-linux-amd64.tar.gz
