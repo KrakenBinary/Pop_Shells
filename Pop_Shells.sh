@@ -12,9 +12,11 @@ echo Installing 1337 H4X0R 700L$. . .
 sleep 6
 
 # install wireshark
-apt-get install -y wireshark-qt
+echo -=WireShark=-
+apt-get install -y wireshark
 
 # loop to install "ez" packages
+echo -=AptTools=-
 while read -r p ; do apt-get install -y $p ; done < <(cat << "EOF"
 	dirb
 	dnsrecon
@@ -48,17 +50,21 @@ cd PenTools
 git clone https://github.com/danielmiessler/SecLists.git
 
 # install bloodhound
+echo -=Bloodhound=-
 npm install -g electron-packager
 git clone https://github.com/BloodHoundAD/Bloodhound
 cd Bloodhound
 npm install
+echo -=BuildLinux=-
 npm run build:linux
 
 # install hydra
+echo -=Hydra=-
 pip install hydra-core --upgrade
 apt-get install hydra -y
 
 # install metasploit
+echo -=Metasploit=-
 curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall
 chmod 755 msfinstall
 ./msfinstall
